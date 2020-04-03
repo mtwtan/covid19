@@ -8,6 +8,12 @@ import pandas as pd
 import json
 import requests
 
+############################
+# This script is only meant for data from 01/22/2020 to 03/21/2020
+# Which uses the older schema that lacks some columns like FIPS and admin2
+############################
+
+
 bucket = "<S3 Bucket Name>" #### Enter your S3 bucket name
 rootkey = "covid-19/jhu/daily/" #### Modify as necessary for the key in your S3 bucket. Remember to ADD trailing slash /
 baseurl = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/"
@@ -36,7 +42,10 @@ def download_file(url,jhu_file):
   
   df_jhu = pd.read_csv(url, delimiter=',', header=0)
   df_jhu.columns = df_jhu.columns.str.replace('/','_')
- 
+
+  if 'FIPS' in df_jhu.columns:
+    df_jhu['FIPS'] = df_jhu['FIPS'].fillna(0).astype(int)
+  
   tmppath = jhu_folder + jhu_file
   df_jhu.to_csv(tmppath, index=False, sep=",", encoding='utf-8')
   return_msg = "File downloaded to " + tmppath
@@ -56,12 +65,13 @@ def upload_s3(day,month,year,jhu_file):
 # Functions (end)
 
 day_delta = datetime.timedelta(days=1)
-s_date = "01-22-2020" ### Date of the first CSV file in repository
+s_date = "01-22-2020"
 start_date = datetime.datetime.strptime(s_date, '%m-%d-%Y')
-e_date = "04-01-2020" ### Change date to the latest CSV file in repository
+e_date = "03-21-2020"
 end_date = datetime.datetime.strptime(e_date, '%m-%d-%Y')
 
-# Looping to download from GitHub and upload into S3 bucket in your account
+#end_date = start_date + 7*day_delta
+#currdate = date.today()
 
 for i in range((end_date - start_date).days + 1):
     currdate = start_date + i*day_delta
