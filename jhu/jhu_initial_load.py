@@ -56,13 +56,12 @@ def upload_s3(day,month,year,jhu_file):
 # Functions (end)
 
 day_delta = datetime.timedelta(days=1)
-s_date = "01-22-2020"
+s_date = "01-22-2020" ### Date of the first CSV file in repository
 start_date = datetime.datetime.strptime(s_date, '%m-%d-%Y')
-e_date = "04-01-2020"
+e_date = "04-01-2020" ### Change date to the latest CSV file in repository
 end_date = datetime.datetime.strptime(e_date, '%m-%d-%Y')
 
-#end_date = start_date + 7*day_delta
-#currdate = date.today()
+# Looping to download from GitHub and upload into S3 bucket in your account
 
 for i in range((end_date - start_date).days + 1):
     currdate = start_date + i*day_delta
